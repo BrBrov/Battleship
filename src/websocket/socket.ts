@@ -1,19 +1,20 @@
-import { WebSocketServer } from "ws";
+import { WebSocketServer, Server, WebSocket, RawData } from "ws";
 
 export default function createSocket(): void {
-	const ws = new WebSocketServer({ port: 3000 });
+	const ws: Server = new WebSocketServer({ port: 3000 });
 
-	ws.on('connection', (socket) => {
+	ws.on('connection', (socket: WebSocket) => {
 
-		socket.on('message', (socketArg) => {
-			console.dir(socketArg.toString());
+		socket.on('message', (data: RawData) => {
 
+			const dataInString: string = data.toString();
+			console.dir(data.toString());
+			
+			socket.send(dataInString);
 		});
 
-		socket.on('open', (data) => {
-			console.log(typeof data);
+		socket.on('upgrade', (data) => {
 			console.log(data);
 		});
-
 	})
 }

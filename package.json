@@ -6,8 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "webpack --mode=production",
-    "start:dev": "webpack --mode=development --watch",
-    "clean": "rm ./dist/server.js"
+    "start:dev": "webpack --mode=development --watch --progress"
   },
   "author": "Andrei Auchynnikau",
   "keywords": [],
@@ -16,6 +15,7 @@
     "@babel/core": "^7.22.6",
     "@babel/preset-env": "^7.22.6",
     "@babel/preset-typescript": "^7.22.5",
+    "@types/ws": "^8.5.5",
     "babel-loader": "^9.1.2",
     "clean-webpack-plugin": "^4.0.0",
     "nodemon": "^2.0.22",

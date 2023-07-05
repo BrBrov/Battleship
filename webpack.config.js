@@ -22,6 +22,10 @@ if (process.argv[2] === '--mode=production') {
 const config = {
   entry: "./index.js",
   watch: true,
+  watchOptions: {
+    aggregateTimeout: 500,
+    poll: 1000
+  },
   mode: modeApp,
   target: 'node',
   module: {
@@ -52,12 +56,11 @@ const config = {
   plugins: [
     new NodeTargetPlugin(),
     new WebpackShellPlugin({
-      // onBuildStart: {
-      //   scripts:['npm run clean'
-      // ],
-      //   blocking: false,
-      //   parallel: false,
-      // },
+      onBuildStart: {
+        scripts:['node'],
+        blocking: false,
+        parallel: false,
+      },
       onBuildEnd: {
         scripts:[scriptExec],
         blocking: false,
