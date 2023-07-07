@@ -2,25 +2,35 @@ import path from "path";
 import url from 'url';
 
 import NodeTargetPlugin from './node_modules/webpack/lib/node/NodeTargetPlugin.js';
-// import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import NodemonPlugin from 'nodemon-webpack-plugin';
 
 const __filename = path.format(url.pathToFileURL(import.meta.url));
 const __dirname = path.dirname(__filename);
 
-// let modeApp;
+let modeApp = true;
+let usePlugins;
 
-// if (process.argv[2] === '--mode=production') {
-//   console.log('Is production mode');
-//   modeApp = false;
-// } else {
-//   console.log('Is development mode');
-//   modeApp = true;
-// }
+console.log(process.argv);
+
+if (process.argv[2] === '--mode=production') {
+  console.log('Is production mode');
+  modeApp = false;
+  usePlugins = [new NodeTargetPlugin()];
+} else {
+  console.log('Is development mode');
+  modeApp = true;
+  usePlugins = [
+    new NodeTargetPlugin(),
+    new CleanWebpackPlugin(),
+    new NodemonPlugin()
+  ];
+}
 
 const config = {
   entry: './index.ts',
-  mode: "production",
-  target: 'node18.16',
+  watch: modeApp,
+  target: 'node18.06',
   module: {
     rules: [
       {
@@ -40,9 +50,7 @@ const config = {
     experiments: {
     outputModule: true
   },
-  plugins: [
-    new NodeTargetPlugin()
-  ]
+  plugins: usePlugins
 };
 
 export default config;
