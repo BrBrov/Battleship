@@ -8,18 +8,13 @@ import NodemonPlugin from 'nodemon-webpack-plugin';
 const __filename = path.format(url.pathToFileURL(import.meta.url));
 const __dirname = path.dirname(__filename);
 
-let modeApp = true;
 let usePlugins;
 
-console.log(process.argv);
-
 if (process.argv[2] === '--mode=production') {
-  console.log('Is production mode');
-  modeApp = false;
+  console.log('Building app...');
   usePlugins = [new NodeTargetPlugin()];
 } else {
-  console.log('Is development mode');
-  modeApp = true;
+  console.log('App is openning for development...');
   usePlugins = [
     new NodeTargetPlugin(),
     new CleanWebpackPlugin(),
@@ -29,7 +24,6 @@ if (process.argv[2] === '--mode=production') {
 
 const config = {
   entry: './index.ts',
-  watch: modeApp,
   target: 'node18.06',
   module: {
     rules: [
