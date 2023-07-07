@@ -1,12 +1,12 @@
-import { WebSocketServer, Server, WebSocket, RawData } from "ws";
-import generalHandler from "./handlers/general-handler";
+import { WebSocketServer, WebSocket, RawData } from 'ws';
+import generalHandler from './handlers/general-handler';
 
 export default function createSocket(port: number): void {
-	const ws: Server = new WebSocketServer({ port: port });
+	const ws: WebSocketServer = new WebSocketServer({ port: port });
 
-	ws.on('connection', (socket: WebSocket) => {
+	console.log(`Websocket opened on ws://localhost:${port}`);
 
-		console.log(`Websocket opened on ws://localhost:${port}`);
+	ws.on('connection', (socket: WebSocket) => {		
 
 		socket.on('message', (data: RawData) => {
 
@@ -16,6 +16,9 @@ export default function createSocket(port: number): void {
 		});
 
 		socket.on('close', () => socket.close());
+
+		process.on('SIGINT', () => socket.close());
+		
 	})
 
 	ws.on('close', () => ws.close());

@@ -2,7 +2,7 @@ import { WebSocket } from "ws";
 import { GeneralDataMessage } from "../../models/request-types";
 import requestOutput from "./request-console";
 import TypesOfData from '../../models/command-types';
-import { RegData } from "../../models/users-types";
+// import { RegData } from "../../models/users-types";
 
 export default function generalHandler(data: string, socket: WebSocket): void {
   const command: GeneralDataMessage = JSON.parse(data);
@@ -13,23 +13,23 @@ export default function generalHandler(data: string, socket: WebSocket): void {
     case TypesOfData.REG:
       const user: GeneralDataMessage = {
         type: "reg",
-        data: {
+        data: `{
           name: 'qwerty',
           index: 1,
           error: false,
           errorText: 'GOVNO'
-        },
+        }`,
         id: 0
       }
       socket.send(JSON.stringify(user));
       socket.send(JSON.stringify({
         type: "update_winners",
-        data: [
+        data: `[
           {
             name: 'qwerty',
             wins: 10,
           }
-        ],
+        ]`,
         id: 0
       }));
       break;

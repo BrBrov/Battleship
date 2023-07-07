@@ -14,8 +14,8 @@ export default function requestOutput(command: GeneralDataMessage, socket: WebSo
   }
 
   console.log('Get command from client:');
-  console.dir(command.type, '\n');
-  console.log(command.data, '\n');
+  console.dir(command.type);
+  console.log(command.data);
 
   return true;
 }
