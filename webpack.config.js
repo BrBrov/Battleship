@@ -12,19 +12,20 @@ let scriptExec;
 let modeApp;
 
 if (process.argv[2] === '--mode=production') {
+  console.log('Is production mode');
   modeApp = 'production';
   scriptExec = 'node dist/server.js';
 } else {
+  console.log('Is development mode');
   modeApp = 'development';
-  scriptExec = 'nodemon dist/server.js';
+  scriptExec = 'node --watch dist/server.js';
 }
 
 const config = {
   entry: "./index.js",
-  watch: true,
   watchOptions: {
     aggregateTimeout: 500,
-    poll: 1000
+    ignored: /node_modules/
   },
   mode: modeApp,
   target: 'node',
@@ -32,7 +33,7 @@ const config = {
     rules: [
       {
         test: /\.(ts|js)?$/,
-        exclude: /node_modules/,
+        exclude: [/node_modules/, /front/],
         use: {
           loader: "babel-loader",
           options: {
@@ -57,15 +58,15 @@ const config = {
     new NodeTargetPlugin(),
     new WebpackShellPlugin({
       onBuildStart: {
-        scripts:['node'],
-        blocking: false,
+        scripts:[scriptExec],
+        blocking: true,
         parallel: false,
       },
-      onBuildEnd: {
-        scripts:[scriptExec],
-        blocking: false,
-        parallel: false,
-      }
+      // onBuildEnd: {
+      //   scripts:[],
+      //   blocking: true,
+      //   parallel: false,
+      // }
     }),
     new CleanWebpackPlugin({
       dry: true,

@@ -9,13 +9,43 @@
 import { createRequire as __WEBPACK_EXTERNAL_createRequire } from "module";
 /******/ var __webpack_modules__ = ({
 
+/***/ "./src/models/command-types.ts":
+/*!*************************************!*\
+  !*** ./src/models/command-types.ts ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\nvar TypesOfData = /*#__PURE__*/function (TypesOfData) {\n  TypesOfData[\"REG\"] = \"reg\";\n  TypesOfData[\"CREATE_ROOM\"] = \"create_room\";\n  TypesOfData[\"SINGLE_PLAY\"] = \"single_play\";\n  TypesOfData[\"UPDATE_WINNERS\"] = \"update_winners\";\n  TypesOfData[\"ADD_USER_TO_ROOM\"] = \"add_user_to_room\";\n  TypesOfData[\"CREATE_GAME\"] = \"create_game\";\n  TypesOfData[\"UPDATE_ROOM\"] = \"update_room\";\n  TypesOfData[\"ADD_SHIPS\"] = \"add_ships\";\n  TypesOfData[\"START_GAME\"] = \"start_game\";\n  TypesOfData[\"ATTACK\"] = \"attack\";\n  TypesOfData[\"RANDOM_ATTACK\"] = \"randomAttack\";\n  TypesOfData[\"TURN\"] = \"turn\";\n  TypesOfData[\"FINISH\"] = \"finish\";\n  return TypesOfData;\n}(TypesOfData || {});\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (TypesOfData);\n\n//# sourceURL=webpack://ws_task/./src/models/command-types.ts?");
+
+/***/ }),
+
+/***/ "./src/websocket/handlers/general-handler.ts":
+/*!***************************************************!*\
+  !*** ./src/websocket/handlers/general-handler.ts ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ generalHandler)\n/* harmony export */ });\n/* harmony import */ var _request_console__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./request-console */ \"./src/websocket/handlers/request-console.ts\");\n/* harmony import */ var _models_command_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../models/command-types */ \"./src/models/command-types.ts\");\n\n\nfunction generalHandler(data, socket) {\n  var command = JSON.parse(data);\n  if (!(0,_request_console__WEBPACK_IMPORTED_MODULE_0__[\"default\"])(command, socket)) return;\n  switch (command.type) {\n    case _models_command_types__WEBPACK_IMPORTED_MODULE_1__[\"default\"].REG:\n      socket.send(data);\n      break;\n    case _models_command_types__WEBPACK_IMPORTED_MODULE_1__[\"default\"].CREATE_ROOM:\n      socket.send(JSON.stringify({\n        type: \"create_room\",\n        data: \"10\",\n        id: 0\n      }));\n      break;\n  }\n}\n\n//# sourceURL=webpack://ws_task/./src/websocket/handlers/general-handler.ts?");
+
+/***/ }),
+
+/***/ "./src/websocket/handlers/request-console.ts":
+/*!***************************************************!*\
+  !*** ./src/websocket/handlers/request-console.ts ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ requestOutput)\n/* harmony export */ });\nfunction requestOutput(command, socket) {\n  if (!command.hasOwnProperty('type')) {\n    console.log('Wrond recived data from socket!');\n    var resErr = {\n      type: 'error',\n      data: \"\",\n      id: -1\n    };\n    socket.send(JSON.stringify(resErr));\n    return false;\n  }\n  console.log('Get command from client:');\n  console.dir(command.type, '\\n');\n  console.log(command.data, '\\n');\n  return true;\n}\n\n//# sourceURL=webpack://ws_task/./src/websocket/handlers/request-console.ts?");
+
+/***/ }),
+
 /***/ "./src/websocket/socket.ts":
 /*!*********************************!*\
   !*** ./src/websocket/socket.ts ***!
   \*********************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ createSocket)\n/* harmony export */ });\n/* harmony import */ var ws__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ws */ \"./node_modules/ws/wrapper.mjs\");\n\nfunction createSocket() {\n  var ws = new ws__WEBPACK_IMPORTED_MODULE_0__.WebSocketServer({\n    port: 3000\n  });\n  ws.on('connection', function (socket) {\n    socket.on('message', function (data) {\n      var dataInString = data.toString();\n      console.dir(data.toString());\n      socket.send(dataInString);\n    });\n    socket.on('upgrade', function (data) {\n      console.log(data);\n    });\n  });\n}\n\n//# sourceURL=webpack://ws_task/./src/websocket/socket.ts?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ createSocket)\n/* harmony export */ });\n/* harmony import */ var ws__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ws */ \"./node_modules/ws/wrapper.mjs\");\n/* harmony import */ var _handlers_general_handler__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./handlers/general-handler */ \"./src/websocket/handlers/general-handler.ts\");\n\n\nfunction createSocket(port) {\n  var ws = new ws__WEBPACK_IMPORTED_MODULE_0__.WebSocketServer({\n    port: port\n  });\n  ws.on('connection', function (socket) {\n    console.log(\"Websocket opened on ws://localhost:\".concat(port));\n    socket.on('message', function (data) {\n      var dataInString = data.toString();\n      (0,_handlers_general_handler__WEBPACK_IMPORTED_MODULE_1__[\"default\"])(dataInString, socket);\n    });\n    socket.on('close', function () {\n      return socket.close();\n    });\n  });\n  ws.on('close', function () {\n    return ws.close();\n  });\n}\n\n//# sourceURL=webpack://ws_task/./src/websocket/socket.ts?");
 
 /***/ }),
 
@@ -275,7 +305,7 @@ module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("zlib");
   \******************/
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _src_http_server_index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/http_server/index.js */ \"./src/http_server/index.js\");\n/* harmony import */ var _src_websocket_socket_ts__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./src/websocket/socket.ts */ \"./src/websocket/socket.ts\");\n\n\nvar HTTP_PORT = 8181;\nconsole.log(\"Start static http server on the \".concat(HTTP_PORT, \" port!\"));\n_src_http_server_index_js__WEBPACK_IMPORTED_MODULE_0__.httpServer.listen(HTTP_PORT);\n(0,_src_websocket_socket_ts__WEBPACK_IMPORTED_MODULE_1__[\"default\"])();\n\n//# sourceURL=webpack://ws_task/./index.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _src_http_server_index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/http_server/index.js */ \"./src/http_server/index.js\");\n/* harmony import */ var _src_websocket_socket_ts__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./src/websocket/socket.ts */ \"./src/websocket/socket.ts\");\n\n\nvar HTTP_PORT = 8181;\nvar SOCKET_PORT = 3000;\nconsole.log(\"Start static http server on the \".concat(HTTP_PORT, \" port!\"));\n_src_http_server_index_js__WEBPACK_IMPORTED_MODULE_0__.httpServer.listen(HTTP_PORT);\n(0,_src_websocket_socket_ts__WEBPACK_IMPORTED_MODULE_1__[\"default\"])(SOCKET_PORT);\n\n//# sourceURL=webpack://ws_task/./index.js?");
 
 /***/ }),
 
