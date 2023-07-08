@@ -1,8 +1,13 @@
 import { WebSocket } from "ws";
 import { GeneralDataMessage } from "../../models/request-types";
 import requestOutput from "./request-console";
+import responseOutput from './response-console';
 import TypesOfData from '../../models/command-types';
+import GameController from '../../game/game';
+import { User } from '../../models/users-types';
 // import { RegData } from "../../models/users-types";
+
+const gameController = new GameController();
 
 export default function generalHandler(data: string, socket: WebSocket): void {
   const command: GeneralDataMessage = JSON.parse(data);
@@ -11,43 +16,25 @@ export default function generalHandler(data: string, socket: WebSocket): void {
 
   switch (command.type) {
     case TypesOfData.REG:
-      const user: GeneralDataMessage = {
-        type: "reg",
-        data: `{
-          name: 'qwerty',
-          index: 1,
-          error: false,
-          errorText: 'GOVNO'
-        }`,
-        id: 0
-      }
-      socket.send(JSON.stringify(user));
-      socket.send(JSON.stringify({
-        type: "update_winners",
-        data: `[
-          {
-            name: 'qwerty',
-            wins: 10,
-          }
-        ]`,
-        id: 0
-      }));
+
+      const requestData: User = JSON.parse(command.data);
+
+      const regMsg: string = gameController.handleReg(requestData);
+
+      responseOutput(regMsg);
+
+      socket.send(regMsg);
+      
+      const winsMsg: string = gameController.handlerAllWinners();
+
+      responseOutput(winsMsg);
+      
+      socket.send(winsMsg);
+
       break;
+
     case TypesOfData.CREATE_ROOM:
-      socket.send(JSON.stringify({
-        type: "update_room",
-        data: {
-              roomId: 1,
-              roomUsers:
-                [
-                  {
-                    name: 'qwerty',
-                    index: 0,
-                  }
-                ],         
-        },
-        id: 0,
-      }));
+      
       break;
   }
 }

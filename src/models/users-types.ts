@@ -5,7 +5,7 @@ export interface RegData {
   errorText: string,
 }
 
-export interface WinnersData {
+export interface WinnerData {
   name: string,
   wins: number,
 }

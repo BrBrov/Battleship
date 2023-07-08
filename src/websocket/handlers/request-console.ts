@@ -3,7 +3,7 @@ import { WebSocket } from "ws";
 
 export default function requestOutput(command: GeneralDataMessage, socket: WebSocket): boolean {
   if (!command.hasOwnProperty('type')) {
-    console.log('Wrond recived data from socket!');
+    console.log('Wrond recived data from socket!\n');
     const resErr: GeneralDataMessage = {
       type: 'error',
       data: "",
@@ -14,8 +14,7 @@ export default function requestOutput(command: GeneralDataMessage, socket: WebSo
   }
 
   console.log('Get command from client:');
-  console.dir(command.type);
-  console.log(command.data);
+  console.log(command, '\n');
 
   return true;
 }

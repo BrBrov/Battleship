@@ -4,7 +4,7 @@ import generalHandler from './handlers/general-handler';
 export default function createSocket(port: number): void {
 	const ws: WebSocketServer = new WebSocketServer({ port: port });
 
-	console.log(`Websocket opened on ws://localhost:${port}`);
+	console.log(`Websocket opened on ws://localhost:${port}\n\n`);
 
 	ws.on('connection', (socket: WebSocket) => {		
 
