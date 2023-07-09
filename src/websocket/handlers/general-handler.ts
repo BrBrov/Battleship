@@ -1,40 +1,52 @@
-import { WebSocket } from "ws";
-import { GeneralDataMessage } from "../../models/request-types";
-import requestOutput from "./request-console";
-import responseOutput from './response-console';
+import DataBase from '../../database/database';
+import CreateResponse from '../../game/response-message';
 import TypesOfData from '../../models/command-types';
-import GameController from '../../game/game';
-import { User } from '../../models/users-types';
-// import { RegData } from "../../models/users-types";
+import { RegData, User } from '../../models/users-types';
+import RoomsBase from '../../database/rooms-base';
+import NamedSocket from '../../database/socket-object';
+import responseOutput from './response-console';
+import UserData from '../../database/user-data';
 
-const gameController = new GameController();
+export default class Handlers {
+  public regHandler(user: User, database: DataBase, socket: NamedSocket): string {
 
-export default function generalHandler(data: string, socket: WebSocket): void {
-  const command: GeneralDataMessage = JSON.parse(data);
+    let result: UserData;
 
-  if (!requestOutput(command, socket)) return;
+    if (!database.findUser(user)) {
+      result = database.setUser(user, socket);
+    }
 
-  switch (command.type) {
-    case TypesOfData.REG:
+    if (!database.checkUserForLogin(user)) {
+      const err: RegData = {
+        name: user.name,
+        index: -1,
+        error: true,
+        errorText: 'Wrong user  login or password'
+      };
+      return new CreateResponse(TypesOfData.REG, JSON.stringify(err), -1).getResponse();
+    } 
 
-      const requestData: User = JSON.parse(command.data);
+    return new CreateResponse(TypesOfData.REG, JSON.stringify(result.getRegData()), result.getIndexUser()).getResponse();
+  }
 
-      const regMsg: string = gameController.handleReg(requestData);
+  public updateRoom(rooms: RoomsBase): string {
+    return new CreateResponse(TypesOfData.UPDATE_ROOM, JSON.stringify(rooms.getUpdateRoom()), 0).getResponse();
+  }
 
-      responseOutput(regMsg);
+  public allWinnersUpdate(database: DataBase, sockets: Array<NamedSocket>) {
+    const resp = new CreateResponse(TypesOfData.UPDATE_WINNERS, JSON.stringify(database.getAllWinners()), 0).getResponse();
+    responseOutput(resp);
+    sockets.forEach((socket: NamedSocket) => {
+      socket.getSocket().send(resp);
+    });
+  }
 
-      socket.send(regMsg);
-      
-      const winsMsg: string = gameController.handlerAllWinners();
+  public allRoomsUpdate(rooms: RoomsBase, sockets: Array<NamedSocket>): void {
 
-      responseOutput(winsMsg);
-      
-      socket.send(winsMsg);
+    const roomsResponse: string = new CreateResponse(TypesOfData.UPDATE_ROOM, JSON.stringify(rooms.getUpdateRoom()), 0).getResponse();
 
-      break;
+    responseOutput(roomsResponse);
 
-    case TypesOfData.CREATE_ROOM:
-      
-      break;
+    sockets.forEach((socket: NamedSocket) => socket.getSocket().send(roomsResponse));
   }
 }

@@ -1,47 +1,57 @@
-import { User, WinnerData } from "../models/users-types";
+import { WebSocket } from 'ws';
+import { User, WinnerData } from '../models/users-types';
 import UserData from './user-data';
+import NamedSocket from './socket-object';
 
-export class DataBase {
+export default class DataBase {
   private allUsers: Array<UserData>
 
   constructor() {
     this.allUsers = [] as Array<UserData>;
   }
 
-  public userHandler(user: User): UserData {
-    if (this.isUserExist(user)) {
-      return this.getUser(user);      
-    }
-    
-    return this.addUser(user);
-  }
+  public setUser(user: User, socket: NamedSocket): UserData {
+    const isUser = this.allUsers.find((item: UserData) => item.isUser(user));
 
-  public getAllWinners(): Array<WinnerData> {
-    return this.allUsers.map((user: UserData) => user.getAllWins());
-  }
+    if (isUser) return isUser;
 
-  private getUser(user: User): UserData {
+    const index = this.allUsers.length ? this.allUsers.length : 0;
 
-    return this.allUsers.find((userData: UserData) => {
-      const userRecord = userData.getUserRecord();
-      if (userRecord.name === user.name && userRecord.password === user.password) return userData;
-    });    
-  }
-
-  private addUser(user: User): UserData {
-    const index: number = this.allUsers.length ? this.allUsers.length : 0; 
-    const newUser: UserData = new UserData(user, index);
+    const newUser = new UserData(user, index, socket);
 
     this.allUsers.push(newUser);
+
     return newUser;
   }
 
-  private isUserExist(user: User): boolean {
-    if (this.allUsers.some((item: UserData) => item.getUserRecord().name === user.name && item.getUserRecord().password === user.password)) {
-      return true;
-    }
+  public hasUser(user: User): boolean {
+    const result = this.allUsers.find((item: UserData) => item.isUser(user));
+    if (result) return true;
+
     return false;
   }
-}
 
-export const database = new DataBase();
+  public findUser(user: User): UserData {
+    return this.allUsers.find((item: UserData) => item.isUser(user));
+  }
+
+  public findUserBySocket(socket: WebSocket): UserData {
+    return this.allUsers.find((user: UserData) => user.getNamedSocket().getSocket() === socket);
+  }
+
+  public getAllWinners(): Array<WinnerData> {
+    return this.allUsers.map((item: UserData) => item.getAllWins());
+  }
+
+  public checkUserForLogin(user: User): boolean {
+    const isUser = this.allUsers.some((item: UserData) => item.checkUserName(user.name));
+    
+    if (!isUser) return false;
+
+    const isPassword = this.allUsers.some((item: UserData) => item.checkPassword(user.password));
+
+    if (!isPassword) return false;
+
+    return true;
+  }
+}

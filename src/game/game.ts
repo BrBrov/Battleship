@@ -1,35 +1,49 @@
-import { database, DataBase } from '../database/database';
-import TypesOfData from '../models/command-types';
-import { GeneralDataMessage } from '../models/request-types';
-import { RegData, User } from '../models/users-types';
-import CreateResponse from './response-message';
+import WebSocket, { RawData, WebSocketServer } from 'ws';
+import DataBase from '../database/database';
+import RoomsBase from '../database/rooms-base';
+import NamedSocket from '../database/socket-object';
+
 
 export default class GameController {
 	private database: DataBase;
+	private roomDataBase: RoomsBase;
+	private allSockets: Array<NamedSocket>;
+	private ws: WebSocketServer;
+
 	constructor() {
-		this.database = database;
+		this.database = new DataBase();
+		this.roomDataBase = new RoomsBase();
+		this.allSockets = [];
 	}
 
-	public handleReg(user: User): string {
-		const userFromDb = this.database.userHandler(user);
-		const responseData: RegData = {
-			name: '',
-			index: 0,
-			error: false,
-			errorText: ''
-		};
-
-		if (userFromDb) {
-			responseData.name = userFromDb.getUserName();
-			responseData.index = userFromDb.getIndexUser();
-		}
-
-		return new CreateResponse(TypesOfData.REG, JSON.stringify(responseData), userFromDb.getIndexUser()).getResponse();
+	public setWebSocketServer(ws: WebSocketServer): void {
+		this.ws = ws;
 	}
 
-	public handlerAllWinners(): string {
-		const allWinners = this.database.getAllWinners();
+	public setSocket(socket: WebSocket): void {
+		const newSocket = new NamedSocket(socket, this);
+		this.allSockets.push(newSocket);
+	}
 
-		return new CreateResponse(TypesOfData.UPDATE_WINNERS, JSON.stringify(allWinners)).getResponse();
+	public getAllSockets(): Array<NamedSocket> {
+		return this.allSockets;
+	}
+
+	public getDB(): DataBase {
+		return this.database;
+	}
+
+	public getRooms(): RoomsBase {
+		return this.roomDataBase;
+	}
+
+	public findNamedSocket(socket: WebSocket): NamedSocket {
+		return this.allSockets.find((nSocket: NamedSocket) => nSocket.isSocketUser(socket));
+	}
+
+	public deleteClosedSocket(socket: WebSocket): void {
+		this.allSockets = this.allSockets.map((item: NamedSocket) => {
+			if (!item.isSocketUser(socket)) return item;
+		});
 	}
 }

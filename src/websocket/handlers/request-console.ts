@@ -14,7 +14,7 @@ export default function requestOutput(command: GeneralDataMessage, socket: WebSo
   }
 
   console.log('Get command from client:');
-  console.log(command, '\n');
+  console.log(`${JSON.stringify(command)}\n`);
 
   return true;
 }

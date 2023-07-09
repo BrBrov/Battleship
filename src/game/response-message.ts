@@ -1,14 +1,12 @@
-import { GeneralDataMessage } from '../models/request-types';
-
 export default class CreateResponse {
 	private type: string;
 	private data: string;
 	private id: number;
 
-	constructor(type: string, data: string, id: number = 0) {
+	constructor(type: string, data: string, id?: number) {
 		this.type = type;
 		this.data = data;
-		this.id = id;
+		this.id = id ? id : 0;
 	}
 
 	public getResponse(): string {

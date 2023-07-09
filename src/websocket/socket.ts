@@ -1,25 +1,19 @@
-import { WebSocketServer, WebSocket, RawData } from 'ws';
-import generalHandler from './handlers/general-handler';
+import { WebSocketServer, WebSocket } from 'ws';
+import GameController from '../game/game';
+
+const gameController = new GameController();
 
 export default function createSocket(port: number): void {
 	const ws: WebSocketServer = new WebSocketServer({ port: port });
 
+	gameController.setWebSocketServer(ws);
+
 	console.log(`Websocket opened on ws://localhost:${port}\n\n`);
 
-	ws.on('connection', (socket: WebSocket) => {		
+	ws.on('connection', (socket: WebSocket) => {
 
-		socket.on('message', (data: RawData) => {
-
-			const dataInString: string = data.toString();
-
-			generalHandler(dataInString, socket);			
-		});
-
-		socket.on('close', () => socket.close());
-
-		process.on('SIGINT', () => socket.close());
-		
+		gameController.setSocket(socket);
 	})
 
-	ws.on('close', () => ws.close());
+	ws.on('close', () => 'WebSocket server was closed');
 }
