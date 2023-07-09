@@ -1,4 +1,3 @@
-import { WebSocket } from 'ws';
 import { RegData, User, WinnerData } from '../models/users-types';
 import NamedSocket from './socket-object';
 
@@ -51,7 +50,7 @@ export default class UserData {
 
 	public getRegData(): RegData {
 		return {
-			name: this.getUserName(),
+			name: this.user.name,
 			index: this.index,
 			error: false,
 			errorText: '',

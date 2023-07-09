@@ -10,10 +10,12 @@ export default class Room {
 		this.roomUsers = [] as Array<UpdateRoomData>;
 	}
 
-	public addAnotherUserToRoom(user: UserData): UpdateRoomData | null {
-		if (this.roomUsers.length >= 2) return null;
+	public addAnotherUserToRoom(user: UserData): boolean {
+		if (this.roomUsers.length >= 2) return false;
+		if (this.roomUsers.some((item) => item.name === user.getUserName())) return false;
+
 		this.roomUsers.push(this.doUpdateRoomData(user));
-		return this.doUpdateRoomData(user);
+		return true;
 	}
 
 	public deleteUser(user: UserData): UpdateRoomData | null {
@@ -40,6 +42,10 @@ export default class Room {
 
 	public getRoomUsersCount(): number {
 		return this.roomUsers.length;
+	}
+
+	public getUsersInRoom(): Array<UpdateRoomData> {
+		return this.roomUsers;
 	}
 
 }

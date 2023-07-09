@@ -26,17 +26,16 @@ export default class HandlerSocket {
 
 				const data: User = JSON.parse(command.data);
 
-				const index = this.game.getAllSockets().length ? this.game.getAllSockets().length : 0;
+				if (!this.nSocket.checkSocketName()) {
 
-				const NS: NamedSocket = this.game.findNamedSocket(socket);
-
-				if (!(NS.name === data.name)) {
-					const response: string = this.generalHandler.regHandler(data, this.game.getDB(), this.nSocket);
-
-					responseOutput(response);
-
-					socket.send(response);
+					this.nSocket.setName(data.name);
 				}
+
+				const response: string = this.generalHandler.regHandler(data, this.game.getDB(), this.nSocket);
+
+				responseOutput(response);
+
+				socket.send(response);
 
 				const updateRooms: string = this.generalHandler.updateRoom(this.game.getRooms());
 
@@ -50,7 +49,7 @@ export default class HandlerSocket {
 
 				const rooms: RoomsBase = this.game.getRooms();
 
-				rooms.addRoom(user, this.game.getDB());
+				rooms.addRoom(user);
 
 				const roomsUpdate = this.generalHandler.allRoomsUpdate(rooms, this.game.getAllSockets());
 

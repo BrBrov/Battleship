@@ -21,8 +21,7 @@ export default class GameController {
 	}
 
 	public setSocket(socket: WebSocket): void {
-		const newSocket = new NamedSocket(socket, this);
-		this.allSockets.push(newSocket);
+			this.addToAllSockets(socket);
 	}
 
 	public getAllSockets(): Array<NamedSocket> {
@@ -41,9 +40,18 @@ export default class GameController {
 		return this.allSockets.find((nSocket: NamedSocket) => nSocket.isSocketUser(socket));
 	}
 
-	public deleteClosedSocket(socket: WebSocket): void {
+	public findSocketByName(name: string): NamedSocket {
+		return this.allSockets.find((item: NamedSocket) => item && item.getName() === name);
+	}
+
+	public deleteNamedSocket(socket: NamedSocket): void {
 		this.allSockets = this.allSockets.map((item: NamedSocket) => {
-			if (!item.isSocketUser(socket)) return item;
+			if (item.getName() !== socket.getName()) return item;
 		});
+	}
+
+	private addToAllSockets(socket: WebSocket): void {
+		const newSocket = new NamedSocket(socket, this);
+		this.allSockets.push(newSocket);
 	}
 }

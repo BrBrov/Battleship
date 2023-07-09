@@ -10,13 +10,23 @@ export default class RoomsBase {
 		this.rooms = [] as Array<Room>;
 	}
 
-	public addRoom(user: UserData, database: DataBase): void {
-		const index = this.rooms.length ? this.rooms.length : 0;
-		const newRoom = new Room(this.rooms.length);
+	public addRoom(user: UserData): void {
 
-		newRoom.addAnotherUserToRoom(user);
-		
-		this.rooms.push(newRoom);
+		const isPlayer: boolean = this.rooms.some((item: Room) => {
+			return item.getUsersInRoom().some((player: UpdateRoomData) => player.name === user.getUserName());
+		});
+
+		if (!isPlayer) {
+
+			const index = this.rooms.length ? this.rooms.length : 0;
+			const newRoom = new Room(index);
+
+			const result: boolean = newRoom.addAnotherUserToRoom(user);
+
+			console.log(result);
+
+			if (result) this.rooms.push(newRoom);
+		}
 	}
 
 	public getUpdateRoom(): Array<UpdateRoom> {

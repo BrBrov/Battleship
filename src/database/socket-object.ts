@@ -7,7 +7,7 @@ import GameController from '../game/game';
 import HandlerSocket from '../game/handler-socket';
 
 export default class NamedSocket {
-	private socket: WebSocket;
+	public socket: WebSocket;
 	private handlerSocket: HandlerSocket;
 	private gameController: GameController;
 	private nameSocket: string;
@@ -28,26 +28,36 @@ export default class NamedSocket {
 			this.handlerSocket.handler(command, this.socket);
 		});
 
-		this.socket.on('close', (webSocket: WebSocket) => {
-			console.log(`Socket of ${webSocket} was closed\n`);
+		this.socket.on('close', () => {
+			console.log(`Socket of user ${this.nameSocket} was closed\n`);
 
-			gameController.deleteClosedSocket(webSocket);
+			console.log(this.gameController.getAllSockets().length);
 		});
 	}
 	
-	set name(name: string) {
+	public setName(name: string) {
 		this.nameSocket = name;
 	}
 
-	get name(): string {
+	public getName(): string {
 		return this.nameSocket;
 	}
 
 	public getSocket(): WebSocket {
-		return  this.socket;
+		return this.socket ? this.socket : undefined;
 	}
 
 	public isSocketUser(socket: WebSocket): boolean {
-		return socket === this.socket;
+		if(socket === this.socket) return true;
+
+		return false;
+	}
+
+	public setNewSocket(socket: WebSocket): void {
+		this.socket = socket;
+	}
+
+	public checkSocketName(): boolean {
+		return !!this.nameSocket
 	}
 }

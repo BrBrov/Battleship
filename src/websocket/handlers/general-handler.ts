@@ -10,7 +10,7 @@ import UserData from '../../database/user-data';
 export default class Handlers {
   public regHandler(user: User, database: DataBase, socket: NamedSocket): string {
 
-    let result: UserData;
+    let result: UserData = database.findUser(user);
 
     if (!database.findUser(user)) {
       result = database.setUser(user, socket);
@@ -21,7 +21,7 @@ export default class Handlers {
         name: user.name,
         index: -1,
         error: true,
-        errorText: 'Wrong user  login or password'
+        errorText: 'Wrong user login or password'
       };
       return new CreateResponse(TypesOfData.REG, JSON.stringify(err), -1).getResponse();
     } 
@@ -37,7 +37,7 @@ export default class Handlers {
     const resp = new CreateResponse(TypesOfData.UPDATE_WINNERS, JSON.stringify(database.getAllWinners()), 0).getResponse();
     responseOutput(resp);
     sockets.forEach((socket: NamedSocket) => {
-      socket.getSocket().send(resp);
+      socket && socket.getSocket().send(resp);
     });
   }
 
