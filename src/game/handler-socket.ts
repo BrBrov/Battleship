@@ -8,6 +8,7 @@ import responseOutput from '../websocket/handlers/response-console';
 import GameController from './game';
 import UserData from '../database/user-data';
 import RoomsBase from '../database/rooms-base';
+import { RoomData } from '../models/room-types';
 
 export default class HandlerSocket {
 	private generalHandler: Handlers;
@@ -21,6 +22,8 @@ export default class HandlerSocket {
 	}
 
 	public handler(command: GeneralDataMessage, socket: WebSocket): void {
+		let findUser: UserData;
+
 		switch (command.type) {
 			case TypesOfData.REG:
 
@@ -45,14 +48,27 @@ export default class HandlerSocket {
 
 				break;
 			case TypesOfData.CREATE_ROOM:
-				const user: UserData = this.game.getDB().findUserBySocket(socket);
+				findUser = this.game.getDB().findUserBySocket(socket);
 
 				const rooms: RoomsBase = this.game.getRooms();
 
-				rooms.addRoom(user);
+				rooms.addRoom(findUser);
 
-				const roomsUpdate = this.generalHandler.allRoomsUpdate(rooms, this.game.getAllSockets());
+				this.generalHandler.allRoomsUpdate(rooms, this.game.getAllSockets());
 
+				break;
+			case TypesOfData.ADD_USER_TO_ROOM:
+				const roomIdObj = JSON.parse(command.data) as RoomData;
+				findUser = this.game.getDB().findUserBySocket(socket);
+				if (roomIdObj.indexRoom !== findUser.getIndexRoom()) {
+					const fUser: UserData = this.game.getDB().findUserByIdRoom(roomIdObj.indexRoom);
+					const responses: Array<string> = this.generalHandler.addUserToRoom(fUser, findUser, this.game.getRooms());
+
+					fUser.getNamedSocket().getSocket().send(responses[0]);
+					findUser.getNamedSocket().getSocket().send(responses[1]);
+
+					this.generalHandler.allRoomsUpdate(this.game.getRooms(), this.game.getAllSockets());
+				}
 				break;
 		}
 	}

@@ -6,13 +6,14 @@ import RoomsBase from '../../database/rooms-base';
 import NamedSocket from '../../database/socket-object';
 import responseOutput from './response-console';
 import UserData from '../../database/user-data';
+import Playground from '../../database/game-playgrond';
 
 export default class Handlers {
   public regHandler(user: User, database: DataBase, socket: NamedSocket): string {
 
     let result: UserData = database.findUser(user);
 
-    if (!database.findUser(user)) {
+    if (!result) {
       result = database.setUser(user, socket);
     }
 
@@ -24,7 +25,7 @@ export default class Handlers {
         errorText: 'Wrong user login or password'
       };
       return new CreateResponse(TypesOfData.REG, JSON.stringify(err), -1).getResponse();
-    } 
+    }
 
     return new CreateResponse(TypesOfData.REG, JSON.stringify(result.getRegData()), result.getIndexUser()).getResponse();
   }
@@ -48,5 +49,21 @@ export default class Handlers {
     responseOutput(roomsResponse);
 
     sockets.forEach((socket: NamedSocket) => socket.getSocket().send(roomsResponse));
+  }
+
+  public addUserToRoom(fUser: UserData, sUser: UserData, rooms: RoomsBase): Array<string> {
+    const playgrond: Playground = rooms.createPlayGround(fUser, sUser);
+
+    const responseToOwner: string = new CreateResponse(
+      TypesOfData.CREATE_GAME,
+      JSON.stringify(playgrond.getGameDataOfOwner()),
+      playgrond.getIdPlayeGround()).getResponse();
+
+    const responseToSecondPlayer = new CreateResponse(
+      TypesOfData.CREATE_GAME,
+      JSON.stringify(playgrond.getGameDataOfSecondPlayer()),
+      playgrond.getIdPlayeGround()).getResponse();
+
+    return [responseToOwner, responseToSecondPlayer];
   }
 }

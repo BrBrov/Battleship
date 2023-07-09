@@ -12,6 +12,7 @@ export default class Room {
 
 	public addAnotherUserToRoom(user: UserData): boolean {
 		if (this.roomUsers.length >= 2) return false;
+		console.log(user.getUserName());
 		if (this.roomUsers.some((item) => item.name === user.getUserName())) return false;
 
 		this.roomUsers.push(this.doUpdateRoomData(user));
@@ -21,7 +22,10 @@ export default class Room {
 	public deleteUser(user: UserData): UpdateRoomData | null {
 		if (this.roomUsers.length < 2) return null;
 
-		this.roomUsers = this.roomUsers.filter((item: UpdateRoomData) => item.name !== user.getUserName());
+		this.roomUsers = this.roomUsers.filter((item: UpdateRoomData) => { 
+			const name = user.getUserName();
+			if (item.name !== name) return item;
+		});
 		return this.doUpdateRoomData(user);
 	}
 

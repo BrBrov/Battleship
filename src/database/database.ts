@@ -2,6 +2,7 @@ import { WebSocket } from 'ws';
 import { User, WinnerData } from '../models/users-types';
 import UserData from './user-data';
 import NamedSocket from './socket-object';
+import RandomId from '../game/random-number';
 
 export default class DataBase {
   private allUsers: Array<UserData>
@@ -15,7 +16,9 @@ export default class DataBase {
 
     if (isUser) return isUser;
 
-    const index = this.allUsers.length ? this.allUsers.length : 0;
+    const random = new RandomId(this.allUsers.map((item: UserData) => item.getIndexUser()))
+
+    const index = random.id;
 
     const newUser = new UserData(user, index, socket);
 
@@ -53,5 +56,9 @@ export default class DataBase {
     if (!isPassword) return false;
 
     return true;
+  }
+
+  public findUserByIdRoom(id: number): UserData {
+    return this.allUsers.find((item: UserData) => item.getIndexRoom() === id);
   }
 }

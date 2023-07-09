@@ -1,4 +1,5 @@
 import { RegData, User, WinnerData } from '../models/users-types';
+import Room from './room';
 import NamedSocket from './socket-object';
 
 export default class UserData {
@@ -6,6 +7,7 @@ export default class UserData {
 	private winsData: WinnerData;
 	private index: number;
 	private socket: NamedSocket;
+	private room: Room = undefined;
 	
 	constructor(user: User, index: number, socket: NamedSocket) {
 		this.user = user;
@@ -63,5 +65,21 @@ export default class UserData {
 
 	public checkPassword(pass: string): boolean {
 		return pass === this.user.password;
+	}
+
+	public setRoom(room: Room): void {
+		this.room = room;
+	}
+
+	public getRoom(): Room {
+		return this.room;
+	}
+
+	public deleteRoom(): void{
+		this.room = undefined;
+	}
+
+	public getIndexRoom(): number {
+		return this.room ? this.room.getRoomId() : null;
 	}
 }
