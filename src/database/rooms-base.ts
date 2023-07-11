@@ -40,7 +40,7 @@ export default class RoomsBase {
 
 		const updateRoom: Array<UpdateRoom> = this.rooms.map((item: Room) => {
 			const id = item.getRoomId();
-			const itemUser = item.getUpdateRoom();
+			const itemUser = item.getRoomUsers();
 			return { roomId: id, roomUsers: itemUser };
 		});
 
@@ -64,7 +64,7 @@ export default class RoomsBase {
 		const playground = new Playground(fUser, sUser, roomOwner);
 		this.playgrounds.push(playground);
 
-		this.rooms = this.rooms.map((room: Room) => {
+		this.rooms = this.rooms.filter((room: Room) => {
 			if (room.getRoomId() !== roomOwner.getRoomId() && room.getRoomId() !== roomSecondPlayer.getRoomId()) {
 				return room;
 			}

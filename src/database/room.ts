@@ -33,7 +33,7 @@ export default class Room {
 		return this.roomId;
 	}
 
-	public getUpdateRoom(): Array<UpdateRoomData> {
+	public getRoomUsers(): Array<UpdateRoomData> {
 		return this.roomUsers;
 	}
 

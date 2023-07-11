@@ -70,6 +70,9 @@ export default class HandlerSocket {
 					this.generalHandler.allRoomsUpdate(this.game.getRooms(), this.game.getAllSockets());
 				}
 				break;
+				case TypesOfData.ADD_SHIPS:
+					console.log(JSON.parse(command.data));
+					break;
 		}
 	}
 }

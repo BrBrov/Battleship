@@ -54,4 +54,8 @@ export default class GameController {
 		const newSocket = new NamedSocket(socket, this);
 		this.allSockets.push(newSocket);
 	}
+
+	public deleteClosedNamedSockets(): void {
+		this.allSockets = this.allSockets.filter((socket: NamedSocket) => socket.getSocket().readyState === 1);
+	}
 }
