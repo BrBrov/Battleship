@@ -11,10 +11,10 @@ const __dirname = path.dirname(__filename);
 let usePlugins;
 
 if (process.argv[2] === '--mode=production') {
-  console.log('Building app...');
+  console.log('\x1B[38;2;190;200;10mBuilding app...\x1B[0m');
   usePlugins = [new NodeTargetPlugin()];
 } else {
-  console.log('App is openning for development...');
+  console.log('\x1B[38;2;90;90;170mApp is openning for development...\x1B[0m');
   usePlugins = [
     new NodeTargetPlugin(),
     new CleanWebpackPlugin(),

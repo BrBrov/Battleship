@@ -6,13 +6,11 @@ const gameController = new GameController();
 export default function createSocket(port: number): void {
 	const ws: WebSocketServer = new WebSocketServer({ port: port, clientTracking: true });
 
-	gameController.setWebSocketServer(ws);
-
-	console.log(`Websocket opened on ws://localhost:${port}\n\n`);
+	console.log(`\x1B[38;2;14;200;180mWebsocket opened on ws://localhost:${port}\n\n\x1B[0m`);
 
 	ws.on('connection', (socket: WebSocket) => {
 		gameController.setSocket(socket);
 	})
 
-	ws.on('close', () => 'WebSocket server was closed');
+	ws.on('close', () => '\x1B[38;2;245;10;10mWebSocket server was closed\x1B[0m');
 }

@@ -29,13 +29,9 @@ export default class NamedSocket {
 		});
 
 		this.socket.on('close', () => {
-			console.log(`Socket of user ${this.nameSocket} was closed\n`);
-
-			console.log(this.gameController.getAllSockets().length);
+			console.log(`\x1B[38;2;210;0;0Socket of user ${this.nameSocket} was closed\n\x1B[0m`);
 
 			this.gameController.deleteClosedNamedSockets();
-
-			console.log(this.gameController.getAllSockets().length);
 		});
 	}
 	

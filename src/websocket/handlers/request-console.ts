@@ -3,7 +3,7 @@ import { WebSocket } from "ws";
 
 export default function requestOutput(command: GeneralDataMessage, socket: WebSocket): boolean {
   if (!command.hasOwnProperty('type')) {
-    console.log('Wrond recived data from socket!\n');
+    console.log('\x1B[38;2;225;35;20mWrond recived data from socket!\n\x1B[0m');
     const resErr: GeneralDataMessage = {
       type: 'error',
       data: "",
@@ -13,8 +13,8 @@ export default function requestOutput(command: GeneralDataMessage, socket: WebSo
     return false;
   }
 
-  console.log('Get command from client:');
-  console.log(`Get from client: ${JSON.stringify(command)}\n`);
+  console.log('\x1B[38;2;10;140;110mGet command from client:\x1B[0m');
+  console.log(`\x1B[38;2;190;25;135mGet from client: ${JSON.stringify(command)}\n\x1B[0m`);
 
   return true;
 }

@@ -8,16 +8,11 @@ export default class GameController {
 	private database: DataBase;
 	private roomDataBase: RoomsBase;
 	private allSockets: Array<NamedSocket>;
-	private ws: WebSocketServer;
 
 	constructor() {
 		this.database = new DataBase();
 		this.roomDataBase = new RoomsBase();
 		this.allSockets = [];
-	}
-
-	public setWebSocketServer(ws: WebSocketServer): void {
-		this.ws = ws;
 	}
 
 	public setSocket(socket: WebSocket): void {
