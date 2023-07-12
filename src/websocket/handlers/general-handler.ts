@@ -7,7 +7,7 @@ import NamedSocket from '../../database/socket-object';
 import responseOutput from './response-console';
 import UserData from '../../database/user-data';
 import Playground from '../../models/game-playground';
-import { DataForAddShip, DataForStartGame, DataOfAttackRequset, FinishGame, PalyersTurn } from '../../models/game-types';
+import { DataForAddShip, DataForStartGame, DataOfAttackRequset, DataOfRandomAttackRequest, FinishGame, PalyersTurn } from '../../models/game-types';
 
 export default class Handlers {
   public regHandler(user: User, database: DataBase, socket: NamedSocket): string {
@@ -171,6 +171,19 @@ export default class Handlers {
         });
       }
     }
+  }
+
+  public handleRandomAttack(random: DataOfRandomAttackRequest, rooms: RoomsBase, database: DataBase, allSockets: NamedSocket[]) {
+    const x: number = Math.ceil(Math.random() * 10);
+    const y: number = Math.ceil(Math.random() * 10);
+
+    const target: DataOfAttackRequset = {
+      x: x,
+      y: y,
+      ...random
+    };
+
+    this.handleTagetAttack(target, rooms, database, allSockets);
   }
 
 }
