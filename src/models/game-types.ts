@@ -16,19 +16,22 @@ export interface DataForStartGame {
   currentPlayerIndex: number
 }
 
-export interface DataOfAttackResponse extends Position {
-  gameID: number,
+export interface DataOfAttackRequset extends Position {
+  gameId: number,
   indexPlayer: number
 }
 
-export interface DataOfAttackRequest {
+export interface Attack {
   position: Position
-  currentPlayer: number,
   status: "miss" | "killed" | "shot"
 }
 
-export interface DataOfRandomAttackResponse {
-  gameID: number,
+export interface DataOfAttackResponse extends Attack{
+  currentPlayer: number
+}
+
+export interface DataOfRandomAttackRequest {
+  gameId: number,
   indexPlayer: number
 }
 

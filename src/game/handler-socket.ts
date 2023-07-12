@@ -9,7 +9,7 @@ import GameController from './game';
 import UserData from '../database/user-data';
 import RoomsBase from '../database/rooms-base';
 import { RoomData } from '../models/room-types';
-import { DataForAddShip } from '../models/game-types';
+import { DataForAddShip, DataOfAttackRequset } from '../models/game-types';
 
 export default class HandlerSocket {
 	private generalHandler: Handlers;
@@ -80,7 +80,9 @@ export default class HandlerSocket {
 				}
 				break;
 			case TypesOfData.ATTACK:
-				console.log('target attak---->', JSON.parse(command.data));
+				const targetAttack = JSON.parse(command.data) as DataOfAttackRequset;
+
+				this.generalHandler.handleTagetAttack(targetAttack, this.game.getRooms(), this.game.getDB());
 				break;
 			case TypesOfData.RANDOM_ATTACK:
 				console.log('random attak---->', JSON.parse(command.data));

@@ -6,8 +6,8 @@ import RoomsBase from '../../database/rooms-base';
 import NamedSocket from '../../database/socket-object';
 import responseOutput from './response-console';
 import UserData from '../../database/user-data';
-import Playground from '../../models/game-playgrond';
-import { DataForAddShip, DataForStartGame, PalyersTurn } from '../../models/game-types';
+import Playground from '../../models/game-playground';
+import { DataForAddShip, DataForStartGame, DataOfAttackRequset, PalyersTurn } from '../../models/game-types';
 
 export default class Handlers {
   public regHandler(user: User, database: DataBase, socket: NamedSocket): string {
@@ -116,6 +116,8 @@ export default class Handlers {
         currentPlayer: currentPlayerTurn
       };
 
+      rooms.setFirstPlayerId(turnResponse.currentPlayer, gameId);
+
       const responseData = new CreateResponse(TypesOfData.TURN, JSON.stringify(turnResponse), gameId);
 
       sockets.forEach((socket: NamedSocket) => {
@@ -123,5 +125,37 @@ export default class Handlers {
         socket.getSocket().send(responseData.getResponse());
       });
     }
+  }
+
+  public handleTagetAttack(target: DataOfAttackRequset, rooms: RoomsBase, databse: DataBase): void {
+    const idPlayersAttack = rooms.getPlayerTurnOfPlayGround(target.gameId, target.indexPlayer);
+
+    if (idPlayersAttack.currentPlayer !== target.indexPlayer) {
+      const attack = rooms.checkAttackPlayground(target);
+
+      const sockets: NamedSocket[] = rooms.getNamedSocketsOfPlayGround(target.gameId);
+
+      const attackResponse = new CreateResponse(TypesOfData.ATTACK, JSON.stringify(attack), target.indexPlayer);
+      
+      sockets.forEach((socket: NamedSocket) => {
+        responseOutput(attackResponse.getResponse());
+        socket.getSocket().send(attackResponse.getResponse());
+      });
+      
+      const wins: boolean = rooms.checkWins(target);
+
+      if (wins) {
+        console.log('wins!!!!!!!!');
+      } else {
+
+        const turnResponse = new CreateResponse(TypesOfData.TURN, JSON.stringify(idPlayersAttack), target.indexPlayer);
+
+        sockets.forEach((socket: NamedSocket) => {
+          responseOutput(turnResponse.getResponse());
+          socket.getSocket().send(turnResponse.getResponse());
+        });
+      }
+    }
+
   }
 }

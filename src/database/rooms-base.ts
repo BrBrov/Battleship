@@ -1,10 +1,12 @@
 import RandomId from '../game/random-number';
 import { UpdateRoom, UpdateRoomData } from '../models/room-types';
-import Playground from '../models/game-playgrond';
+import Playground from '../models/game-playground';
 import Room from './room';
 import UserData from './user-data';
-import { DataForAddShip } from '../models/game-types';
+import { DataForAddShip, DataOfAttackRequset, DataOfAttackResponse, PalyersTurn } from '../models/game-types';
 import NamedSocket from './socket-object';
+import CreateResponse from '../game/response-message';
+import TypesOfData from '../models/command-types';
 
 export default class RoomsBase {
 	private rooms: Array<Room>;
@@ -54,7 +56,7 @@ export default class RoomsBase {
 	}
 
 	public deleteRoomById(id: number): void {
-		this.rooms = this.rooms.map((item: Room) => {
+		this.rooms = this.rooms.filter((item: Room) => {
 			if (item.getRoomId() !== id) return item;
 		});
 	}
@@ -72,13 +74,11 @@ export default class RoomsBase {
 			}
 		});
 
-		console.log(this.rooms);
-
 		return playground;
 	}
 
 	public addShipsToPlayground(shipsData: DataForAddShip): NamedSocket {
-		const playground = this.playgrounds.find((area: Playground) => area.getGameId() === shipsData.gameId);
+		const playground = this.findPLayground(shipsData.gameId);
 
 		return playground.addBattleField(shipsData);
 	}
@@ -108,8 +108,35 @@ export default class RoomsBase {
 		return [ownerID, secondPlayerId];
 	}
 
-	private findPLayground(id: number): Playground {
-		return this.playgrounds.find((area: Playground) => area.getGameId() === id);
+	public getPlayerTurnOfPlayGround(gameId: number, playerId: number): PalyersTurn {
+		const playgrond = this.findPLayground(gameId);
+
+		const idTurnPlayer = playgrond.switchPlayerTurn(playerId);
+
+		return {
+			currentPlayer: idTurnPlayer
+		}
+	}
+
+	public checkAttackPlayground(target: DataOfAttackRequset): DataOfAttackResponse {
+		const playgrond = this.findPLayground(target.gameId);
+
+		return playgrond.checkShoot(target);
+	}
+
+	public checkWins(target: DataOfAttackRequset): boolean {
+		const playgrond = this.findPLayground(target.gameId);
+
+		return playgrond.checkForWins(target);
+	}
+
+	public setFirstPlayerId(playerId: number, gameId: number): void {
+		const playgrond = this.findPLayground(gameId);
+		playgrond.setPlayerTurn(playerId);
+	}
+
+	private findPLayground(gameId: number): Playground {
+		return this.playgrounds.find((area: Playground) => area.getGameId() === gameId);
 	}
 
 }
