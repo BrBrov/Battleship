@@ -12,12 +12,21 @@ type Matrix = {
 }
 
 export default class MatrixShip {
-	private matrix: Array<Matrix>
+	private matrix: Array<Matrix>;
+	private doneShoots: Array<Attack>;
 	constructor(ships: Array<ShipPosition>) {
 		this.matrix = this.doMatrix(ships);
+		this.doneShoots = [] as Array<Attack>;
 	}
 
 	public checkShoot(target: Position): Attack {
+		const isItAttackWas = this.doneShoots.some((shoot: Attack) => shoot.position.x === target.x && shoot.position.y === target.y);
+
+		if (isItAttackWas) {
+			return this.doneShoots.find((shoot: Attack) => shoot.position.x === target.x && shoot.position.y === target.y);
+		}
+
+		let attack: Attack;
 
 		const result = this.matrix.find((ship: Matrix) => {
 			const coor = ship.position.find((pos: Position) => pos.x === target.x && pos.y === target.y)
@@ -36,16 +45,22 @@ export default class MatrixShip {
 
 			const status = this.checkStatusShip(result);
 
-			return {
+			attack = {
 				position: target,
 				status: status
 			};
+
+			this.doneShoots.push();
+			return attack;
 		}
 
-		return {
+		attack = {
 			position: target,
 			status: 'miss'
-		}
+		};
+
+		this.doneShoots.push();
+		return attack;
 	}
 
 	public checkIsAllShipDead(): boolean {
