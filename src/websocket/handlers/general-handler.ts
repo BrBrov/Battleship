@@ -7,7 +7,7 @@ import NamedSocket from '../../database/socket-object';
 import responseOutput from './response-console';
 import UserData from '../../database/user-data';
 import Playground from '../../models/game-playground';
-import { DataForAddShip, DataForStartGame, DataOfAttackRequset, PalyersTurn } from '../../models/game-types';
+import { DataForAddShip, DataForStartGame, DataOfAttackRequset, FinishGame, PalyersTurn } from '../../models/game-types';
 
 export default class Handlers {
   public regHandler(user: User, database: DataBase, socket: NamedSocket): string {
@@ -127,7 +127,7 @@ export default class Handlers {
     }
   }
 
-  public handleTagetAttack(target: DataOfAttackRequset, rooms: RoomsBase, databse: DataBase): void {
+  public handleTagetAttack(target: DataOfAttackRequset, rooms: RoomsBase, databse: DataBase, allSockets: NamedSocket[]): void {
     const idPlayersAttack = rooms.getPlayerTurnOfPlayGround(target.gameId, target.indexPlayer);
 
     if (idPlayersAttack.currentPlayer !== target.indexPlayer) {
@@ -145,7 +145,22 @@ export default class Handlers {
       const wins: boolean = rooms.checkWins(target);
 
       if (wins) {
-        console.log('wins!!!!!!!!');
+        const winner: FinishGame = rooms.getWinnersPlyer(target);
+        
+        rooms.deletePlayground(target.gameId);
+
+        databse.setNewWinner(winner.winPlayer);
+
+        const responseWin = new CreateResponse(TypesOfData.FINISH, JSON.stringify(winner), target.gameId);
+
+        sockets.forEach((socket: NamedSocket) => {
+          responseOutput(responseWin.getResponse());
+          socket.getSocket().send(responseWin.getResponse());
+        });
+
+        this.allWinnersUpdate(databse, allSockets);
+        this.allRoomsUpdate(rooms, allSockets);
+
       } else {
 
         const turnResponse = new CreateResponse(TypesOfData.TURN, JSON.stringify(idPlayersAttack), target.indexPlayer);
@@ -156,6 +171,6 @@ export default class Handlers {
         });
       }
     }
-
   }
+
 }

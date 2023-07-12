@@ -3,10 +3,8 @@ import { UpdateRoom, UpdateRoomData } from '../models/room-types';
 import Playground from '../models/game-playground';
 import Room from './room';
 import UserData from './user-data';
-import { DataForAddShip, DataOfAttackRequset, DataOfAttackResponse, PalyersTurn } from '../models/game-types';
+import { DataForAddShip, DataOfAttackRequset, DataOfAttackResponse, FinishGame, PalyersTurn } from '../models/game-types';
 import NamedSocket from './socket-object';
-import CreateResponse from '../game/response-message';
-import TypesOfData from '../models/command-types';
 
 export default class RoomsBase {
 	private rooms: Array<Room>;
@@ -135,8 +133,21 @@ export default class RoomsBase {
 		playgrond.setPlayerTurn(playerId);
 	}
 
+	public getWinnersPlyer(target: DataOfAttackRequset): FinishGame {
+		const playgrond = this.findPLayground(target.gameId);
+		
+		const idWinner = playgrond.determineTheWinner();
+
+		return {
+			winPlayer: idWinner
+		}
+	}
+
+	public deletePlayground(gameId: number): void {
+		this.playgrounds = this.playgrounds.filter((pGround: Playground) => pGround.getGameId() === gameId);
+	}
+
 	private findPLayground(gameId: number): Playground {
 		return this.playgrounds.find((area: Playground) => area.getGameId() === gameId);
 	}
-
 }

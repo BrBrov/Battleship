@@ -18,7 +18,7 @@ export default class MatrixShip {
 	}
 
 	public checkShoot(target: Position): Attack {
-		this.matrix.forEach((ship: Matrix) => console.dir(JSON.stringify(ship)));
+
 		const result = this.matrix.find((ship: Matrix) => {
 			const coor = ship.position.find((pos: Position) => pos.x === target.x && pos.y === target.y)
 			if (!ship.isDead && coor) {
@@ -28,22 +28,20 @@ export default class MatrixShip {
 
 		if (result) {
 			const cell: Cell = result.position.find((pos: Position) => pos.x === target.x && pos.y === target.y);
-			console.dir(cell);
 
 			if (!cell.hole) {
 				cell.hole = true;
-				result.isDead = result.position.every((cell: Cell) => cell.hole);
-
-				const status = this.checkStatusShip(result);
-
-				console.log('Matrix status---->', status);
-
-				return {
-					position: target,
-					status: status
-				};
 			}
+			result.isDead = result.position.every((cell: Cell) => cell.hole);
+
+			const status = this.checkStatusShip(result);
+
+			return {
+				position: target,
+				status: status
+			};
 		}
+
 		return {
 			position: target,
 			status: 'miss'

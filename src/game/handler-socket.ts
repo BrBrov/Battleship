@@ -82,7 +82,7 @@ export default class HandlerSocket {
 			case TypesOfData.ATTACK:
 				const targetAttack = JSON.parse(command.data) as DataOfAttackRequset;
 
-				this.generalHandler.handleTagetAttack(targetAttack, this.game.getRooms(), this.game.getDB());
+				this.generalHandler.handleTagetAttack(targetAttack, this.game.getRooms(), this.game.getDB(), this.game.getAllSockets());
 				break;
 			case TypesOfData.RANDOM_ATTACK:
 				console.log('random attak---->', JSON.parse(command.data));

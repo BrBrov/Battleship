@@ -116,6 +116,16 @@ export default class Playground {
 		return this.gameOwner.idPlayer === playerId ? this.fUser.getNamedSocket() : this.sUser.getNamedSocket();
 	}
 
+	public getPlayedUsers(): Array<UserData> {
+		return [this.fUser, this.sUser];
+	}
+
+	public determineTheWinner(): number {
+		const fWin = this.fBattleField.checkWins();
+
+		return fWin ? this.sBattleField.getPlayerId() : this.fBattleField.getPlayerId();
+	}
+
 	private generateGameData(): void {
 		this.gameOwner = {
 			idGame: this.room.getRoomId(),

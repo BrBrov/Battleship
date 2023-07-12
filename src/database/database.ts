@@ -61,4 +61,10 @@ export default class DataBase {
   public findUserByIdRoom(id: number): UserData {
     return this.allUsers.find((item: UserData) => item.getIndexRoom() === id);
   }
+
+  public setNewWinner(playerId: number): void {
+    const user = this.allUsers.find((userData: UserData) => userData.getIndexUser() === playerId);
+
+    user.setaAnotherWins();
+  }
 }
