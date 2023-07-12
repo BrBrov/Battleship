@@ -12,7 +12,7 @@ export default class Room {
 
 	public addAnotherUserToRoom(user: UserData): boolean {
 		if (this.roomUsers.length >= 2) return false;
-		console.log(user.getUserName());
+
 		if (this.roomUsers.some((item) => item.name === user.getUserName())) return false;
 
 		this.roomUsers.push(this.doUpdateRoomData(user));
