@@ -6,7 +6,8 @@ import RoomsBase from '../../database/rooms-base';
 import NamedSocket from '../../database/socket-object';
 import responseOutput from './response-console';
 import UserData from '../../database/user-data';
-import Playground from '../../database/game-playgrond';
+import Playground from '../../models/game-playgrond';
+import { DataForAddShip, DataForStartGame, PalyersTurn } from '../../models/game-types';
 
 export default class Handlers {
   public regHandler(user: User, database: DataBase, socket: NamedSocket): string {
@@ -65,5 +66,62 @@ export default class Handlers {
       playgrond.getIdPlayeGround()).getResponse();
 
     return [responseToOwner, responseToSecondPlayer];
+  }
+
+  public addShips(shipsData: DataForAddShip, rooms: RoomsBase): boolean {
+    const socket: NamedSocket = rooms.addShipsToPlayground(shipsData);
+
+    let response: DataForStartGame;
+    let returnResult: boolean;
+
+    if (socket.getSocket()) {
+      response = {
+        currentPlayerIndex: shipsData.indexPlayer,
+        ships: shipsData.ships
+      };
+    } else {
+      response = {
+        currentPlayerIndex: -1,
+        ships: []
+      };
+    }
+
+    if (rooms.checkPlayGroundForStartGame(shipsData.gameId)) {
+      const stringResponse = new CreateResponse(TypesOfData.START_GAME, JSON.stringify(response), shipsData.gameId);
+      responseOutput(stringResponse.getResponse());
+
+      const sockets: Array<NamedSocket> = rooms.getNamedSocketsOfPlayGround(shipsData.gameId);
+
+      sockets.forEach((socket: NamedSocket) => {
+        responseOutput(stringResponse.getResponse());
+        socket.getSocket().send(stringResponse.getResponse());
+      });
+      
+      returnResult = true;
+    } else {
+      returnResult = false;
+    }
+
+    return returnResult;
+  }
+
+  public sendTurnPlayer(gameId: number, rooms: RoomsBase): void {
+    if (rooms.checkPlayGroundForStartGame(gameId)) {
+      const sockets: Array<NamedSocket> = rooms.getNamedSocketsOfPlayGround(gameId);
+      const turn: boolean = Math.random() < 0.5 ?  true : false;
+      const IdsOfPlayers: Array<number> = rooms.getIdPlayersOfPlayGround(gameId);
+      const currentPlayerTurn: number = turn ? IdsOfPlayers[0] : IdsOfPlayers[1];
+
+      const turnResponse: PalyersTurn = {
+        currentPlayer: currentPlayerTurn
+      };
+
+      const responseData = new CreateResponse(TypesOfData.TURN, JSON.stringify(turnResponse), gameId);
+
+      sockets.forEach((socket: NamedSocket) => {
+        responseOutput(responseData.getResponse());
+        socket.getSocket().send(responseData.getResponse());
+      });
+    }
   }
 }

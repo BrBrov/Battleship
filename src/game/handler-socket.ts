@@ -9,6 +9,7 @@ import GameController from './game';
 import UserData from '../database/user-data';
 import RoomsBase from '../database/rooms-base';
 import { RoomData } from '../models/room-types';
+import { DataForAddShip } from '../models/game-types';
 
 export default class HandlerSocket {
 	private generalHandler: Handlers;
@@ -70,9 +71,20 @@ export default class HandlerSocket {
 					this.generalHandler.allRoomsUpdate(this.game.getRooms(), this.game.getAllSockets());
 				}
 				break;
-				case TypesOfData.ADD_SHIPS:
-					console.log(JSON.parse(command.data));
-					break;
+			case TypesOfData.ADD_SHIPS:
+				const shipsData = JSON.parse(command.data) as DataForAddShip;
+				const resultOperation = this.generalHandler.addShips(shipsData, this.game.getRooms());
+				
+				if (resultOperation) {
+					this.generalHandler.sendTurnPlayer(shipsData.gameId, this.game.getRooms());
+				}
+				break;
+			case TypesOfData.ATTACK:
+				console.log('target attak---->', JSON.parse(command.data));
+				break;
+			case TypesOfData.RANDOM_ATTACK:
+				console.log('random attak---->', JSON.parse(command.data));
+				break;
 		}
 	}
 }

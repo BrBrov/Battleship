@@ -1,8 +1,10 @@
 import RandomId from '../game/random-number';
 import { UpdateRoom, UpdateRoomData } from '../models/room-types';
-import Playground from './game-playgrond';
+import Playground from '../models/game-playgrond';
 import Room from './room';
 import UserData from './user-data';
+import { DataForAddShip } from '../models/game-types';
+import NamedSocket from './socket-object';
 
 export default class RoomsBase {
 	private rooms: Array<Room>;
@@ -73,6 +75,41 @@ export default class RoomsBase {
 		console.log(this.rooms);
 
 		return playground;
+	}
+
+	public addShipsToPlayground(shipsData: DataForAddShip): NamedSocket {
+		const playground = this.playgrounds.find((area: Playground) => area.getGameId() === shipsData.gameId);
+
+		return playground.addBattleField(shipsData);
+	}
+
+	public checkPlayGroundForStartGame(gameId: number): boolean {
+		const playgrond = this.findPLayground(gameId);
+		
+		if (!playgrond) return false;
+
+		return playgrond.checkBattleFields();
+	}
+
+	public getNamedSocketsOfPlayGround(gameId: number): Array<NamedSocket> {
+		const playgrond = this.findPLayground(gameId);
+		
+		if (playgrond) {
+			return [playgrond.getSocketOwner(), playgrond.getSocketSecondPlayer()];
+		}
+
+	}
+
+	public getIdPlayersOfPlayGround(gameId: number): Array<number> {
+		const playgrond = this.findPLayground(gameId);
+		const ownerID: number = playgrond.getGameDataOfOwner().idPlayer;
+		const secondPlayerId: number = playgrond.getGameDataOfSecondPlayer().idPlayer;
+
+		return [ownerID, secondPlayerId];
+	}
+
+	private findPLayground(id: number): Playground {
+		return this.playgrounds.find((area: Playground) => area.getGameId() === id);
 	}
 
 }

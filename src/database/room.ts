@@ -51,5 +51,4 @@ export default class Room {
 	public getUsersInRoom(): Array<UpdateRoomData> {
 		return this.roomUsers;
 	}
-
 }
