@@ -5,7 +5,7 @@ import NamedSocket from './socket-object';
 export default class UserData {
 	private user: User;
 	private winsData: WinnerData;
-	private index: number;
+	private index: number | null;
 	private socket: NamedSocket;
 	private room: Room = undefined;
 	

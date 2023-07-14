@@ -5,6 +5,11 @@ import Room from './room';
 import UserData from './user-data';
 import { DataForAddShip, DataOfAttackRequset, DataOfAttackResponse, FinishGame, PalyersTurn } from '../models/game-types';
 import NamedSocket from './socket-object';
+import { User } from '../models/users-types';
+import GameController from '../game/game';
+import { WebSocket } from 'ws';
+import GenerateBotBatlleField from '../models/field-generation';
+import { Position, ShipPosition } from '../models/ship-types';
 
 export default class RoomsBase {
 	private rooms: Array<Room>;
@@ -78,12 +83,21 @@ export default class RoomsBase {
 	public addShipsToPlayground(shipsData: DataForAddShip): NamedSocket {
 		const playground = this.findPLayground(shipsData.gameId);
 
-		return playground.addBattleField(shipsData);
+		const secondUser = playground.getGameDataOfSecondPlayer();
+		const namedSocket = playground.addBattleField(shipsData);
+
+		if (secondUser.idPlayer === -1) {
+			const battleField: DataForAddShip = new GenerateBotBatlleField(secondUser.idGame, secondUser.idPlayer).getBattleField();
+
+			playground.addBattleField(battleField);
+		}
+
+		return namedSocket;
 	}
 
 	public checkPlayGroundForStartGame(gameId: number): boolean {
 		const playgrond = this.findPLayground(gameId);
-		
+
 		if (!playgrond) return false;
 
 		return playgrond.checkBattleFields();
@@ -91,7 +105,7 @@ export default class RoomsBase {
 
 	public getNamedSocketsOfPlayGround(gameId: number): Array<NamedSocket> {
 		const playgrond = this.findPLayground(gameId);
-		
+
 		if (playgrond) {
 			return [playgrond.getSocketOwner(), playgrond.getSocketSecondPlayer()];
 		}
@@ -135,7 +149,7 @@ export default class RoomsBase {
 
 	public getWinnersPlyer(target: DataOfAttackRequset): FinishGame {
 		const playgrond = this.findPLayground(target.gameId);
-		
+
 		const idWinner = playgrond.determineTheWinner();
 
 		return {
@@ -145,6 +159,56 @@ export default class RoomsBase {
 
 	public deletePlayground(gameId: number): void {
 		this.playgrounds = this.playgrounds.filter((pGround: Playground) => pGround.getGameId() === gameId);
+	}
+
+	public createPlaygroundForSingle(user: UserData, game: GameController): Playground {
+		const random = new RandomId(this.rooms.map((item: Room) => item.getRoomId()));
+		const index = random.id;
+		const roomForSingle = new Room(index);
+		roomForSingle.addAnotherUserToRoom(user);
+
+		const fakeSocket = new WebSocket('ws://localhost:3000');
+
+		fakeSocket.send = function (param: string): null {
+			let str: string | null = param;
+			str = null;
+			return str as null;
+		};
+
+		const fakeNamedSocket = new NamedSocket(fakeSocket, game);
+		const fakeUserReg: User = {
+			name: 'bot',
+			password: ''
+		};
+
+		const fakeUser = new UserData(fakeUserReg, -1, fakeNamedSocket);
+
+		fakeUser.setRoom(roomForSingle);
+		user.setRoom(roomForSingle);
+
+		const playgrond = new Playground(user, fakeUser, roomForSingle);
+
+		this.playgrounds.push(playgrond);
+
+		const roomOwnerGame = this.findRoomById(user.getIndexRoom());
+
+		if (roomOwnerGame) {
+			this.deleteRoomById(roomOwnerGame.getRoomId());
+		}
+
+		return playgrond;
+	}
+
+	public attackSinglePlayer(gameId: number): DataOfAttackRequset {
+		const playgrond = this.findPLayground(gameId);
+
+		const position: Position = playgrond.botAttack();
+
+		return {
+			gameId: gameId,
+			indexPlayer: playgrond.getGameDataOfSecondPlayer().idPlayer,
+			...position
+		};
 	}
 
 	private findPLayground(gameId: number): Playground {

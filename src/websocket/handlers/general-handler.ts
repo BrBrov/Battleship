@@ -7,7 +7,8 @@ import NamedSocket from '../../database/socket-object';
 import responseOutput from './response-console';
 import UserData from '../../database/user-data';
 import Playground from '../../models/game-playground';
-import { DataForAddShip, DataForStartGame, DataOfAttackRequset, DataOfRandomAttackRequest, FinishGame, PalyersTurn } from '../../models/game-types';
+import { DataForAddShip, DataForStartGame, DataOfAttackRequset, DataOfAttackResponse, DataOfRandomAttackRequest, FinishGame, PalyersTurn } from '../../models/game-types';
+import GameController from '../../game/game';
 
 export default class Handlers {
   public regHandler(user: User, database: DataBase, socket: NamedSocket): string {
@@ -68,6 +69,18 @@ export default class Handlers {
     return [responseToOwner, responseToSecondPlayer];
   }
 
+  public addUserToSinglePlayer(user: UserData, game: GameController): string {
+    const playgrond: Playground = game.getRooms().createPlaygroundForSingle(user, game);
+
+    const responseForSingleUser = new CreateResponse(
+      TypesOfData.CREATE_GAME,
+      JSON.stringify(playgrond.getGameDataOfOwner()),
+      playgrond.getIdPlayeGround()
+    );
+
+    return responseForSingleUser.getResponse();
+  }
+
   public addShips(shipsData: DataForAddShip, rooms: RoomsBase): boolean {
     const socket: NamedSocket = rooms.addShipsToPlayground(shipsData);
 
@@ -88,7 +101,6 @@ export default class Handlers {
 
     if (rooms.checkPlayGroundForStartGame(shipsData.gameId)) {
       const stringResponse = new CreateResponse(TypesOfData.START_GAME, JSON.stringify(response), shipsData.gameId);
-      responseOutput(stringResponse.getResponse());
 
       const sockets: Array<NamedSocket> = rooms.getNamedSocketsOfPlayGround(shipsData.gameId);
 
@@ -105,7 +117,7 @@ export default class Handlers {
     return returnResult;
   }
 
-  public sendTurnPlayer(gameId: number, rooms: RoomsBase): void {
+  public sendTurnPlayer(gameId: number, rooms: RoomsBase, databse: DataBase, allSockets: NamedSocket[]): void {
     if (rooms.checkPlayGroundForStartGame(gameId)) {
       const sockets: Array<NamedSocket> = rooms.getNamedSocketsOfPlayGround(gameId);
       const turn: boolean = Math.random() < 0.5 ?  true : false;
@@ -124,14 +136,21 @@ export default class Handlers {
         responseOutput(responseData.getResponse());
         socket.getSocket().send(responseData.getResponse());
       });
+
+      if (turnResponse.currentPlayer === -1) {
+        const target: DataOfAttackRequset = this.attackSinglePLayer(gameId, rooms);
+        this.handleTagetAttack(target, rooms, databse, allSockets);
+      }
     }
   }
 
   public handleTagetAttack(target: DataOfAttackRequset, rooms: RoomsBase, databse: DataBase, allSockets: NamedSocket[]): void {
+    const playersID: Array<number> = rooms.getIdPlayersOfPlayGround(target.gameId);
+
     const idPlayersAttack = rooms.getPlayerTurnOfPlayGround(target.gameId, target.indexPlayer);
 
     if (idPlayersAttack.currentPlayer !== target.indexPlayer) {
-      const attack = rooms.checkAttackPlayground(target);
+      const attack: DataOfAttackResponse = rooms.checkAttackPlayground(target);
 
       const sockets: NamedSocket[] = rooms.getNamedSocketsOfPlayGround(target.gameId);
 
@@ -169,8 +188,13 @@ export default class Handlers {
           responseOutput(turnResponse.getResponse());
           socket.getSocket().send(turnResponse.getResponse());
         });
+        
+        if(playersID[1] === -1) {
+          const attack: DataOfAttackRequset = this.attackSinglePLayer(target.gameId, rooms);
+          this.handleTagetAttack(attack, rooms, databse, allSockets);
+        }
       }
-    }
+     }
   }
 
   public handleRandomAttack(random: DataOfRandomAttackRequest, rooms: RoomsBase, database: DataBase, allSockets: NamedSocket[]) {
@@ -184,6 +208,10 @@ export default class Handlers {
     };
 
     this.handleTagetAttack(target, rooms, database, allSockets);
+  }
+
+  public attackSinglePLayer(gameId: number, rooms: RoomsBase): DataOfAttackRequset {
+    return rooms.attackSinglePlayer(gameId);
   }
 
 }

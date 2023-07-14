@@ -28,4 +28,8 @@ export default class BattleField {
 	public checkWins(): boolean {
 		return this.field.checkIsAllShipDead();
 	}
+
+	public botAttack(): Position {
+		return this.field.generateRandomAttack();
+	}
 }

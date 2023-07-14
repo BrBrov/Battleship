@@ -14,12 +14,16 @@ type Matrix = {
 export default class MatrixShip {
 	private matrix: Array<Matrix>;
 	private doneShoots: Array<Attack>;
+	private doneAttack: Array<Position>;
+
 	constructor(ships: Array<ShipPosition>) {
 		this.matrix = this.doMatrix(ships);
 		this.doneShoots = [] as Array<Attack>;
+		this.doneAttack = [] as Array<Position>;
 	}
 
 	public checkShoot(target: Position): Attack {
+		//TODO: delete
 		const isItAttackWas = this.doneShoots.some((shoot: Attack) => shoot.position.x === target.x && shoot.position.y === target.y);
 
 		if (isItAttackWas) {
@@ -65,6 +69,25 @@ export default class MatrixShip {
 
 	public checkIsAllShipDead(): boolean {
 		return this.matrix.every((ship: Matrix) => ship.isDead);
+	}
+
+	public generateRandomAttack(): Position {
+		let position: Position;
+		if (!this.doneAttack.length) {
+			position = this.randomXY();
+			this.doneAttack.push(position);
+			return position;
+		}
+
+		let check = true;
+
+		while (check) {
+			position = this.randomXY();
+			
+			check = this.doneAttack.some((attack: Position) => attack.x === position.x && attack.y === position.y);
+		}
+
+		return position;
 	}
 
 	private doMatrix(ships: Array<ShipPosition>): Array<Matrix> {
@@ -121,5 +144,15 @@ export default class MatrixShip {
 		if (ship.position.every((cell: Cell) => cell.hole)) return 'killed';
 
 		return 'shot';
+	}
+
+	private randomXY(): Position {
+		const x = Math.ceil(Math.random() * 10);
+		const y = Math.ceil(Math.random() * 10);
+
+		return {
+			x: x,
+			y: y
+		};
 	}
 }

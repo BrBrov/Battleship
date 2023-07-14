@@ -8,7 +8,7 @@ import { Position } from './ship-types';
 export default class Playground {
 	private gameOwner: GameData;
 	private gameSecondPlayer: GameData;
-	private room: Room;
+	private room: Room | null;
 	private fUser: UserData;
 	private sUser: UserData;
 	private fBattleField: BattleField | null;
@@ -43,6 +43,7 @@ export default class Playground {
 	}
 
 	public addBattleField(addShipData: DataForAddShip): NamedSocket {
+
 		if (addShipData.gameId !== this.gameOwner.idGame) return;
 
 		const battleField = new BattleField(addShipData);
@@ -51,10 +52,9 @@ export default class Playground {
 			this.sBattleField = battleField;
 			return this.sUser.getNamedSocket();
 		} else {
-			this.fBattleField = battleField;
+			this.fBattleField = battleField;;
 			return this.fUser.getNamedSocket();
 		}
-
 	}
 
 	public checkBattleFields(): boolean {
@@ -124,6 +124,10 @@ export default class Playground {
 		const fWin = this.fBattleField.checkWins();
 
 		return fWin ? this.sBattleField.getPlayerId() : this.fBattleField.getPlayerId();
+	}
+
+	public botAttack(): Position {
+		return this.sBattleField.botAttack()
 	}
 
 	private generateGameData(): void {
