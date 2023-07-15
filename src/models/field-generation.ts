@@ -107,8 +107,8 @@ export default class GenerateBotBatlleField {
 
 	private getRandomPoint(maxX: number, maxY: number): Position {
 		return {
-			x: Math.ceil(Math.random() * (maxX + 1)),
-			y: Math.ceil(Math.random() * (maxY + 1))
+			x: Math.ceil(Math.random() * maxX),
+			y: Math.ceil(Math.random() * maxY)
 		}
 	}
 

@@ -22,7 +22,8 @@ export default class BattleField {
 	}
 
 	public checkShoot(target: Position): Attack {
-		return this.field.checkShoot(target);
+		const attack = this.field.checkShoot(target);
+		return attack;
 	}
 
 	public checkWins(): boolean {

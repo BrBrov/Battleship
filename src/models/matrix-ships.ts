@@ -12,18 +12,17 @@ type Matrix = {
 }
 
 export default class MatrixShip {
+
 	private matrix: Array<Matrix>;
 	private doneShoots: Array<Attack>;
-	private doneAttack: Array<Position>;
 
 	constructor(ships: Array<ShipPosition>) {
 		this.matrix = this.doMatrix(ships);
 		this.doneShoots = [] as Array<Attack>;
-		this.doneAttack = [] as Array<Position>;
 	}
 
 	public checkShoot(target: Position): Attack {
-		//TODO: delete
+
 		const isItAttackWas = this.doneShoots.some((shoot: Attack) => shoot.position.x === target.x && shoot.position.y === target.y);
 
 		if (isItAttackWas) {
@@ -38,6 +37,9 @@ export default class MatrixShip {
 				return ship;
 			}
 		});
+		
+
+		this.matrix.forEach((i: Matrix) => console.table(i.position));
 
 		if (result) {
 			const cell: Cell = result.position.find((pos: Position) => pos.x === target.x && pos.y === target.y);
@@ -63,7 +65,7 @@ export default class MatrixShip {
 			status: 'miss'
 		};
 
-		this.doneShoots.push();
+		this.doneShoots.push(attack);
 		return attack;
 	}
 
@@ -72,20 +74,7 @@ export default class MatrixShip {
 	}
 
 	public generateRandomAttack(): Position {
-		let position: Position;
-		if (!this.doneAttack.length) {
-			position = this.randomXY();
-			this.doneAttack.push(position);
-			return position;
-		}
-
-		let check = true;
-
-		while (check) {
-			position = this.randomXY();
-			
-			check = this.doneAttack.some((attack: Position) => attack.x === position.x && attack.y === position.y);
-		}
+		let position: Position = this.randomXY();
 
 		return position;
 	}
@@ -147,8 +136,8 @@ export default class MatrixShip {
 	}
 
 	private randomXY(): Position {
-		const x = Math.ceil(Math.random() * 10);
-		const y = Math.ceil(Math.random() * 10);
+		const x = Math.floor(Math.random() * 9);
+		const y = Math.floor(Math.random() * 9);
 
 		return {
 			x: x,

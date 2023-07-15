@@ -100,7 +100,10 @@ export default class Handlers {
     }
 
     if (rooms.checkPlayGroundForStartGame(shipsData.gameId)) {
-      const stringResponse = new CreateResponse(TypesOfData.START_GAME, JSON.stringify(response), shipsData.gameId);
+      const stringResponse = new CreateResponse(
+        TypesOfData.START_GAME,
+        JSON.stringify(response),
+        shipsData.gameId);
 
       const sockets: Array<NamedSocket> = rooms.getNamedSocketsOfPlayGround(shipsData.gameId);
 
@@ -108,7 +111,7 @@ export default class Handlers {
         responseOutput(stringResponse.getResponse());
         socket.getSocket().send(stringResponse.getResponse());
       });
-      
+
       returnResult = true;
     } else {
       returnResult = false;
@@ -120,7 +123,7 @@ export default class Handlers {
   public sendTurnPlayer(gameId: number, rooms: RoomsBase, databse: DataBase, allSockets: NamedSocket[]): void {
     if (rooms.checkPlayGroundForStartGame(gameId)) {
       const sockets: Array<NamedSocket> = rooms.getNamedSocketsOfPlayGround(gameId);
-      const turn: boolean = Math.random() < 0.5 ?  true : false;
+      const turn: boolean = Math.random() < 0.5 ? true : false;
       const IdsOfPlayers: Array<number> = rooms.getIdPlayersOfPlayGround(gameId);
       const currentPlayerTurn: number = turn ? IdsOfPlayers[0] : IdsOfPlayers[1];
 
@@ -155,17 +158,17 @@ export default class Handlers {
       const sockets: NamedSocket[] = rooms.getNamedSocketsOfPlayGround(target.gameId);
 
       const attackResponse = new CreateResponse(TypesOfData.ATTACK, JSON.stringify(attack), target.indexPlayer);
-      
+
       sockets.forEach((socket: NamedSocket) => {
         responseOutput(attackResponse.getResponse());
         socket.getSocket().send(attackResponse.getResponse());
       });
-      
+
       const wins: boolean = rooms.checkWins(target);
 
       if (wins) {
         const winner: FinishGame = rooms.getWinnersPlyer(target);
-        
+
         rooms.deletePlayground(target.gameId);
 
         databse.setNewWinner(winner.winPlayer);
@@ -188,13 +191,15 @@ export default class Handlers {
           responseOutput(turnResponse.getResponse());
           socket.getSocket().send(turnResponse.getResponse());
         });
-        
-        if(playersID[1] === -1) {
+
+        if (playersID[1] === -1) {
           const attack: DataOfAttackRequset = this.attackSinglePLayer(target.gameId, rooms);
-          this.handleTagetAttack(attack, rooms, databse, allSockets);
+          console.log(attack);
+          this.handleTagetAttack(attack, rooms, databse, allSockets);          
         }
+
       }
-     }
+    }
   }
 
   public handleRandomAttack(random: DataOfRandomAttackRequest, rooms: RoomsBase, database: DataBase, allSockets: NamedSocket[]) {

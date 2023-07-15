@@ -82,16 +82,18 @@ export default class RoomsBase {
 
 	public addShipsToPlayground(shipsData: DataForAddShip): NamedSocket {
 		const playground = this.findPLayground(shipsData.gameId);
-
-		const secondUser = playground.getGameDataOfSecondPlayer();
 		const namedSocket = playground.addBattleField(shipsData);
 
+		const secondUser = playground.getGameDataOfSecondPlayer();
+
 		if (secondUser.idPlayer === -1) {
+			
 			const battleField: DataForAddShip = new GenerateBotBatlleField(secondUser.idGame, secondUser.idPlayer).getBattleField();
 
 			playground.addBattleField(battleField);
 		}
 
+		;
 		return namedSocket;
 	}
 
